@@ -1,76 +1,88 @@
 import os, sys
 import csv
 
-cereal_csv = os.path.join("Resources/budget_data.csv")
+cereal_csv = os.path.join("budget_data.csv")
 #cereal_csv = os.path.join('..', 'Resources', 'budget_data.csv')
 
-def bank_roll(financial_data):
+#def bank_roll(financial_data):
 #pass
 # Open and read csv
 
-    Title_Total_Months = "Financial Analysis \n ______________________________"
-    label_Total = "Total: "
-    label_Average = "Average: "
-    label_greatest_Increase = " Greatest Increase in profits: "
-    label_greatest_Decrease = " Greatest Decrease in profits: "
-    #Define variables
-    #months = financial_data[0]
-    #profit_loss = financial_data[1]
-
-months = cereal_csv[0]
-profit_loss = cereal_csv[1]
-Total_months = 0
-net_total = 0
-month_count = 0
-profit = []
-
-
 with open(cereal_csv) as csvfile:
     csvreader = csv.reader(csvfile, delimiter=",")    
-# Read the header row first (skip this part if there is no header)
+    # Read the header row first (skip this part if there is no header)
     csv_header = next(csvfile)
     print(f"Header: {csv_header}")    
     # Read through each row of data after the header
-    greatest_increase = 0
-    greatest_decrease = 0
-    max = 0
-    min = 0
+    profit_loss=[]
+    profit_loss_change=[]
+    profit_loss_month=[]
 
     for row in csvreader:
-        #print(col) #for troubleshooting
-        net_total += int(row[1])
-        month_count += 1
-        #greatest profit
-        #r = row.split(",")
-        if float(row[1]) > max:
-            max=float(row[1])
-            print(f"Max Value {max}")
-            max_month = row[0]
-            print(f"Max month {max_month}")
+        profit_loss_month.append(row[0])
+        profit_loss.append(int(row[1]))
+        
 
-        if float(row[1]) < min:
-            min=float(row[1])
-            min_month = row[0]
-            print(f"Min Value {min}")
-            print(f"Min month {min_month}")
+#greatest number   
+    for i in range((len(profit_loss) - 1)):
+        profit_loss_change.append(profit_loss[i] - profit_loss[i - 1])
+        if profit_loss_change[i - 1] < profit_loss_change[i]:
+            max_inc_profit_loss = profit_loss_change[i]
+            max_inc_profit_loss_month = profit_loss_month[i]
+        else:
+            max_inc_profit_loss = profit_loss_change[i - 1]
+            max_inc_profit_loss_month = profit_loss_month[i - 1]
+        
+        if profit_loss_change[i - 1] > profit_loss_change[i]:
+            max_dec_profit_loss = profit_loss_change[i - 1]
+            max_dec_profit_loss_month = profit_loss_month[i - 1]
+        else:
+            max_dec_profit_loss = profit_loss_change[i-1]
+            max_dec_profit_loss_month = profit_loss_month[i-1]
 
-    print(f"Net total {net_total}")
+
+
+        #print(f"Profit-loss month  {profit_loss_month[i]}")
+        #print(f"All profit-loss  {profit_loss[i]}")
+        #print(f"Profit-loss change  {profit_loss_change[i]}")
+
+#calc net profit
+    profit_sum = 0
+    for i in range(0, len(profit_loss)):    
+        profit_sum = profit_sum + profit_loss[i];  
+
+
+    total_profit_loss= sum(profit_loss)
+    sum_profit = sum(profit_loss_change)
+    total_profit_loss = len(profit_loss)
+    average_profit_loss = sum_profit/total_profit_loss
+
+    #print to file
+    sys.stdout = open('output_profit_loss.txt','wt')
+
+    print(f"Financial Analysis ")
+    print(f"----------------------------------------------")    
+    print(f"Total  Months: {total_profit_loss}")
+    print(f"Total: ${profit_sum}")
+    print(f"Average  Change: ${round(average_profit_loss,2)}")
+    print(f"Greatest Increase in Profits: {max_inc_profit_loss_month} (${max_inc_profit_loss})")
+    print(f"Greatest Decrease in Profits: {max_dec_profit_loss_month} (${max_dec_profit_loss})")
+    print(f"----------------------------------------------")
+
     
-#The average of the changes in "Profit/Losses" over the entire period
-average_the_changes = round((net_total/month_count), 2)
+    #print(f"Greatest Increase in Profits: {max_inc_profit_loss_month}")
+    #print(f"Max profit increase {max(profit_loss_change)}")
+    #print(f"Max profit decrease {min(profit_loss_change)}")
+    #print(f"Average profit {round(average_profit_loss,2)}")
+        
+#print file output
+    file = open("output_profit_loss.txt", "r") 
+    print(file.read())
 
 
-# Print out the Financial Analysis
-print("\n____________________________________________________")
-print("Financial Analysis \n____________________________________________")
-print(f"Total months:  {month_count}")
-print(f"Total:  ${net_total}")
-print(f"Average  Change: ${average_the_changes}")
-print(f"Greatest Increase in Profits: {max_month}  ${max}")
-print(f"Greatest Decrease in Profits: {min_month} ${min}")
-print("\n____________________________________________________\n")
 
-#open file and read
-finance_file = open("Analysis_file.txt", "r")
-print(finance_file.read())
-sys.stdout.close()
+
+       
+
+            
+
